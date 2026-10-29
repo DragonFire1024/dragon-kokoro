@@ -1,3 +1,45 @@
+NEW SECTION: 
+
+Instructions and information. First section is updated information and instructiuons. The second section, original information and instructions, is old and for the most part, no longer relevant, but kept here as a historical reference. The only part you need to follow, are the commits to the various files. see the 'old' section, "how to use". 
+
+Credits for the original work on this project go to: Kokoro by supremegamers, based on MagiskOnWSA / MagiskOnEmu ideas.
+
+
+**Current Magisk branch : stable**
+
+**Current Magisk version : 30.7**
+
+# Project Kokoro - Magisk 30.7 for Android-x86 (r-x86 / Android 11)
+
+Updated fork for Magisk 30.7 on Android-x86 Android 11 (r-x86) x86_64 builds.
+
+## What changed from upstream
+- Switched to `/debug_ramdisk` (matches current Magisk 30.x expectations better than `/dev/magisk`)
+- Created fake magisk-patched boot image. It tricks magisk into thinking it's fully installed, which allows for installation of MOST modules. For example Lsposed and ZygiskNext. 
+- Includes empty `sepolicy.rule` so policy load doesn't fail hard
+- More robust permission handling on the Magisk device directory
+- Tested with Magisk 30.7 (30700) on Android 11 x86_64
+- IMPORTANT: Known remaining issue: Magisk app may still show "Requires Additional Setup" dialogue. DISMISS/CANCEL THIS DIALOGUE EVERY TIME YOU OPEN THE APP. FURTHER UPDATES WILL BREAK MAGISK. DO **NOT** UPDATE OR TRY TO UPDATE MAGISK VERSIONS OR YOU WILL BREAK MAGISK. UPDATE ONLY THE MAGISK APP.
+
+All files are provided to you in this repository. Simply follow the steps in 'how to use' old section and cherry-pick the commits in the Android x86 source.
+
+
+## How to use in your Android-x86 tree
+
+1. Clone this repo to `vendor/supremegamers/kokoro` (or your fork path)
+2. Remove old koush Superuser folder ENTIRELY, if present (`external/koush`). Also to create less problems down the line, remove the 'su' folder ENTIRELY ('system/extras/su').
+3. Cherry-pick the device/generic/common and bootable/newinstaller commits from the 'how to use' in the old section below. Make sure to follow the steps and edit all the files in the linked commits below.
+4. Export before building:
+   ```bash
+   export ANDROID_INTEGRATE_MAGISK=true
+   
+**NOTE**: Zygisk will work or may not. I have had trouble getting it to persist. If all else fails, when root is set up and working properly, you should be able to download a magisk module which will provide a Zygisk environment (modules like ZygiskNext https://github.com/LSPosed/ZygiskNext works).
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+OLD SECTION:
+
 # Project Kokoro - integrate Magisk into your Android-x86 build (x86_64 only)
 
 **Current Magisk branch : stable**

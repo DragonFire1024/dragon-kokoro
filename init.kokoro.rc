@@ -1,50 +1,77 @@
 on post-fs-data
-              start logd
-              start adbd
-              mkdir /dev/magisk
-              mount tmpfs tmpfs /dev/magisk mode=0755
-              copy /system/etc/magisk/magisk64 /dev/magisk/magisk64
-              chmod 0755 /dev/magisk/magisk64
-              symlink /dev/magisk/magisk64 /dev/magisk/magisk
-              symlink /dev/magisk/magisk64 /dev/magisk/su
-              symlink /dev/magisk/magisk64 /dev/magisk/resetprop
-              copy /system/etc/magisk/magisk32 /dev/magisk/magisk32
-              chmod 0755 /dev/magisk/magisk32
-              copy /system/etc/magisk/magiskinit /dev/magisk/magiskinit
-              chmod 0755 /dev/magisk/magiskinit
-              symlink /dev/magisk/magiskinit /dev/magisk/magiskpolicy
-              mkdir /dev/magisk/.magisk 700
-              mkdir /dev/magisk/.magisk/mirror 700
-              mkdir /dev/magisk/.magisk/block 700
-              rm /dev/.magisk_unblock
-              start IhhslLhHYfse
-              start FAhW7H9G5sf
-              umount /dev/magisk/.magisk/mirror/data
-              rm /dev/magisk/.magisk/mirror/data
-              symlink /data /dev/magisk/.magisk/mirror/data
-              wait /dev/.magisk_unblock 40
-              rm /dev/.magisk_unblock
+    mkdir /debug_ramdisk 0755
+    mount tmpfs tmpfs /debug_ramdisk mode=0755
 
-          service IhhslLhHYfse /system/bin/sh /system/etc/magisk/loadpolicy.sh
-              user root
-              seclabel u:r:magisk:s0
-              oneshot
+    mkdir /debug_ramdisk/.magisk 0700
+    mkdir /debug_ramdisk/.magisk/device 0755
+    mkdir /debug_ramdisk/.magisk/block 0700
+    mkdir /debug_ramdisk/.magisk/mirror 0700
+    mkdir /debug_ramdisk/.magisk/worker 0755
+    mkdir /debug_ramdisk/.magisk/preinit 0700
 
-          service FAhW7H9G5sf /dev/magisk/magisk --post-fs-data
-              user root
-              seclabel u:r:magisk:s0
-              oneshot
+    copy /system/etc/magisk/magisk64 /debug_ramdisk/magisk64
+    copy /system/etc/magisk/magisk32 /debug_ramdisk/magisk32
+    copy /system/etc/magisk/magiskinit /debug_ramdisk/magiskinit
+    copy /system/etc/magisk/magiskboot /debug_ramdisk/magiskboot
+    copy /system/etc/magisk/busybox /debug_ramdisk/busybox
+    copy /system/etc/magisk/stub.apk.bin /debug_ramdisk/stub.apk
+    copy /system/etc/magisk/util_functions.sh /debug_ramdisk/util_functions.sh
+    copy /system/etc/magisk/magisk-ramdisk.img /debug_ramdisk/magisk-ramdisk.img
 
-          service HLiFsR1HtIXVN6 /dev/magisk/magisk --service
-              class late_start
-              user root
-              seclabel u:r:magisk:s0
-              oneshot
+    # Empty rule file so policy load doesn't hard-fail
+    copy /system/etc/magisk/sepolicy.rule /debug_ramdisk/sepolicy.rule
+    
+    mkdir /data/adb/bin 0755
+    symlink /debug_ramdisk/su /data/adb/bin/su
+    symlink /debug_ramdisk/magisk /data/adb/bin/magisk
 
-          on property:sys.boot_completed=1
-              start YqCTLTppv3ML
+    symlink /debug_ramdisk/magisk64 /debug_ramdisk/magisk
+    symlink /debug_ramdisk/magisk64 /debug_ramdisk/su
+    symlink /debug_ramdisk/magiskinit /debug_ramdisk/magiskpolicy
+    symlink /debug_ramdisk/magisk64 /debug_ramdisk/resetprop
 
-          service YqCTLTppv3ML /dev/magisk/magisk --boot-complete
-              user root
-              seclabel u:r:magisk:s0
-              oneshot
+    chmod 0755 /debug_ramdisk/magisk64
+    chmod 0755 /debug_ramdisk/magisk32
+    chmod 0755 /debug_ramdisk/magiskinit
+    chmod 0755 /debug_ramdisk/magiskboot
+    chmod 0755 /debug_ramdisk/busybox
+    chmod 0644 /debug_ramdisk/stub.apk
+    chmod 0644 /debug_ramdisk/util_functions.sh
+    chmod 0644 /debug_ramdisk/sepolicy.rule
+
+    # Make socket/device accessible early
+    chmod 755 /debug_ramdisk/.magisk
+    chmod 755 /debug_ramdisk/.magisk/device
+
+    start magisk_policy_load
+    start magisk_post_fs_data
+    
+    mkdir /data/adb/magisk 0755
+    write /data/adb/magisk/.installed 1
+
+    wait /dev/.magisk_unblock 40
+    rm /dev/.magisk_unblock
+
+service magisk_policy_load /debug_ramdisk/magiskpolicy --live --apply /debug_ramdisk/sepolicy.rule
+    user root
+    oneshot
+    seclabel u:r:magisk:s0
+
+service magisk_post_fs_data /debug_ramdisk/magisk --post-fs-data
+    user root
+    oneshot
+    seclabel u:r:magisk:s0
+
+service magisk_service /debug_ramdisk/magisk --service
+    class late_start
+    user root
+    oneshot
+    seclabel u:r:magisk:s0
+
+on property:sys.boot_completed=1
+    start magisk_boot_complete
+
+service magisk_boot_complete /debug_ramdisk/magisk --boot-complete
+    user root
+    oneshot
+    seclabel u:r:magisk:s0
