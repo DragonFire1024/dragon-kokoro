@@ -9,7 +9,7 @@ Credits for the original work on this project go to: Kokoro by supremegamers, ba
 
 **Current Magisk version : 30.7**
 
-# Project Kokoro - Magisk 30.7 for Android-x86 (r-x86 / Android 11)
+# Project Kokoro - Magisk 30.7 for Android-x86_64 (r-x86 / Android 11)
 
 Updated fork for Magisk 30.7 on Android-x86 Android 11 (r-x86) x86_64 builds.
 
