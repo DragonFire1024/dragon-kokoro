@@ -17,10 +17,8 @@ on post-fs-data
     copy /system/etc/magisk/stub.apk.bin /debug_ramdisk/stub.apk
     copy /system/etc/magisk/util_functions.sh /debug_ramdisk/util_functions.sh
     copy /system/etc/magisk/magisk-ramdisk.img /debug_ramdisk/magisk-ramdisk.img
-
-    # Empty rule file so policy load doesn't hard-fail
     copy /system/etc/magisk/sepolicy.rule /debug_ramdisk/sepolicy.rule
-    
+
     mkdir /data/adb/bin 0755
     symlink /debug_ramdisk/su /data/adb/bin/su
     symlink /debug_ramdisk/magisk /data/adb/bin/magisk
@@ -38,16 +36,15 @@ on post-fs-data
     chmod 0644 /debug_ramdisk/stub.apk
     chmod 0644 /debug_ramdisk/util_functions.sh
     chmod 0644 /debug_ramdisk/sepolicy.rule
-
-    # Make socket/device accessible early
     chmod 755 /debug_ramdisk/.magisk
     chmod 755 /debug_ramdisk/.magisk/device
 
     start magisk_policy_load
     start magisk_post_fs_data
-    
+
     mkdir /data/adb/magisk 0755
     write /data/adb/magisk/.installed 1
+    copy /debug_ramdisk/util_functions.sh /data/adb/magisk/util_functions.sh
 
     wait /dev/.magisk_unblock 40
     rm /dev/.magisk_unblock

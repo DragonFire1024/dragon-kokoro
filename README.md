@@ -9,7 +9,7 @@ Credits for the original work on this project go to: Kokoro by supremegamers, ba
 
 **Current Magisk version : 30.7**
 
-# Project Kokoro - Magisk 30.7 for Android-x86_64 (r-x86 / Android 11)
+# Project Kokoro - Magisk 30.7 for Android-x86 (r-x86 / Android 11)
 
 Updated fork for Magisk 30.7 on Android-x86 Android 11 (r-x86) x86_64 builds.
 
@@ -19,9 +19,14 @@ Updated fork for Magisk 30.7 on Android-x86 Android 11 (r-x86) x86_64 builds.
 - Includes empty `sepolicy.rule` so policy load doesn't fail hard
 - More robust permission handling on the Magisk device directory
 - Tested with Magisk 30.7 (30700) on Android 11 x86_64
+- Allow RW of "/". The system aka "/" can now be mounted as rw using 'adb remount' or from a root shell: mount -o remount,rw /. ***This assumes your build uses system.img rather than a system.sfs.***
 - IMPORTANT: Known remaining issue: Magisk app may still show "Requires Additional Setup" dialogue. DISMISS/CANCEL THIS DIALOGUE EVERY TIME YOU OPEN THE APP. FURTHER UPDATES WILL BREAK MAGISK. DO **NOT** UPDATE OR TRY TO UPDATE MAGISK VERSIONS OR YOU WILL BREAK MAGISK. UPDATE ONLY THE MAGISK APP.
 
 All files are provided to you in this repository. Simply follow the steps in 'how to use' old section and cherry-pick the commits in the Android x86 source.
+
+NOTE: It would also save a lot of headaches and trouble if you build with selinux set to permissive by setting it in the kernel cmdline in device/generic/common/BoardConfig.mk:
+
+BOARD_KERNEL_CMDLINE := androidboot.selinux=permissive <---add at the very end of everyting in that line
 
 
 ## How to use in your Android-x86 tree

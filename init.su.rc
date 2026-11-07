@@ -1,0 +1,2 @@
+on property:sys.boot_completed=1
+    exec - root root -- /system/bin/sh /system/bin/fix_su.sh
